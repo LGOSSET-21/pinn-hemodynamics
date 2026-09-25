@@ -4,10 +4,12 @@
 
 Can a physics-informed neural network reconstruct velocities during an unobserved part of a periodic flow cycle? This educational project progresses from the Poiseuille profile to pulsatile flow, unknown forcing and comparisons under noisy, sparse observations.
 
+**[Project overview](https://LGOSSET-21.github.io/pinn-hemodynamics/) · [Live demo](https://LGOSSET-21.github.io/pinn-hemodynamics/visualization/reliability.html) · [Read the report](https://LGOSSET-21.github.io/pinn-hemodynamics/reports/Project_Report.pdf)**
+
 ## Start here
 
 - **[Project report (PDF)](reports/Project_Report.pdf)** — scientific motivation, measured results and connection to control and estimation.
-- **[Reliability explorer](visualization/reliability.html)** — download the repository and open this file in a browser. GitHub's file viewer does not run the animation.
+- **[Reliability explorer](visualization/reliability.html)** — **[open the live explorer](https://LGOSSET-21.github.io/pinn-hemodynamics/visualization/reliability.html)**. No download or installation needed.
 - [Experimental protocol and interpretation](RELIABILITY_GUIDE.md).
 - [Full results table](results/reliability_v1/REPORT.md).
 
@@ -72,3 +74,7 @@ New training is more expensive. Read `RELIABILITY_GUIDE.md` before running `pyth
 This is Louis Gosset's learning project. AI tools assisted code development, debugging and writing. The repository distinguishes implemented experiments, measured outcomes and proposed extensions. The PINN methods are established research methods, not claimed as original inventions.
 
 Reference: Raissi, Perdikaris & Karniadakis (2019), [Physics-informed neural networks](https://doi.org/10.1016/j.jcp.2018.10.045). A chronological [research log](RESEARCH_LOG.md) is retained; some historical learning notes and introductory code comments are in French. The README, final comparison and professor-facing report are in English.
+
+## Companion project
+
+[Start with the control project: triple pendulum](https://LGOSSET-21.github.io/inverted-pendulum-control/).

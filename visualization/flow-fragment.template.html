@@ -1,0 +1,239 @@
+<div id="pinn-flow-lab">
+  <style>
+    #pinn-flow-lab { color:var(--foreground); position:relative; }
+    #pinn-flow-lab .flow-controls { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
+    #pinn-flow-lab .flow-controls label { flex:1 1 155px; }
+    #pinn-flow-lab .flow-tubes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    #pinn-flow-lab figure { margin:0; min-width:0; }
+    #pinn-flow-lab canvas { display:block; width:100%; height:190px; }
+    #pinn-flow-lab .flow-charts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    #pinn-flow-lab .flow-chart svg { display:block; width:100%; overflow:visible; }
+    #pinn-flow-lab .flow-chart svg text { fill:var(--foreground); font-size:12px; }
+    #pinn-flow-lab .flow-chart path.domain,#pinn-flow-lab .flow-chart .tick line { stroke:var(--border); }
+    #pinn-flow-lab .flow-legend { display:flex; flex-wrap:wrap; gap:16px; margin:10px 0; }
+    #pinn-flow-lab .flow-legend button { border:0; background:transparent; color:var(--foreground); padding:4px 0; cursor:pointer; font:inherit; }
+    #pinn-flow-lab .flow-legend button[aria-pressed="false"] { opacity:.45; }
+    #pinn-flow-lab .flow-swatch { display:inline-block; width:22px; border-top:3px solid var(--viz-series-1); vertical-align:middle; margin-right:6px; }
+    #pinn-flow-lab .flow-swatch.pinn { border-top:3px dashed var(--viz-series-2); }
+    #pinn-flow-lab .flow-caption { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; }
+    #pinn-flow-lab .flow-scale { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:6px 0 14px; }
+    #pinn-flow-lab .flow-bar { width:110px; height:8px; }
+    #pinn-flow-lab .flow-tip { position:absolute; pointer-events:none; z-index:5; background:var(--popover); color:var(--popover-foreground); padding:8px 10px; border:1px solid var(--border); }
+    #pinn-flow-lab .flow-tip[hidden] { display:none; }
+    #pinn-flow-lab .flow-phase { margin:16px 0 8px; }
+    #pinn-flow-lab .flow-status { min-height:24px; }
+    #pinn-flow-lab .flow-observed { fill:var(--muted-foreground); }
+    @media(max-width:760px) { #pinn-flow-lab .flow-charts { grid-template-columns:1fr; } }
+    @media(max-width:560px) { #pinn-flow-lab .flow-tubes { grid-template-columns:1fr; } }
+  </style>
+  <h2>Voir le fluide, comprendre le PINN</h2>
+  <div class="flow-controls">
+    <label class="form-label">Bruit des mesures
+      <select class="form-select" data-noise><option value="0">0 %</option><option value="0.03" selected>3 %</option><option value="0.1">10 %</option></select>
+    </label>
+    <label class="form-label">Réalisation du bruit
+      <select class="form-select" data-seed><option value="42">Graine 42</option><option value="43">Graine 43</option><option value="44">Graine 44</option></select>
+    </label>
+    <label class="form-label">Couleur dans le tube
+      <select class="form-select" data-color><option value="velocity">Vitesse</option><option value="error">Erreur signée du PINN</option></select>
+    </label>
+  </div>
+  <div class="flow-phase">
+    <div class="viz-row">
+      <button class="btn btn-primary" type="button" data-play>Lire le cycle</button>
+      <label class="form-label" for="pinn-flow-phase">Phase du cycle : <span data-phase-label class="tabular-nums">10 %</span></label>
+    </div>
+    <input class="form-range" id="pinn-flow-phase" data-phase type="range" min="0" max="100" step="0.1" value="10" aria-label="Phase du cycle en pourcentage">
+    <div class="flow-caption text-small"><span>0 %</span><span>30–65 % : aucune vitesse observée</span><span>100 %</span></div>
+  </div>
+  <div class="flow-status text-small" aria-live="polite" data-status>Phase observée</div>
+  <div class="flow-tubes">
+    <figure><figcaption>Référence simulée</figcaption><canvas data-tube="reference" role="img" aria-label="Coupe longitudinale schématique du tube : vitesse de référence et traceurs illustratifs">Vitesse maximale près du centre, nulle à la paroi.</canvas></figure>
+    <figure><figcaption>Reconstruction du PINN</figcaption><canvas data-tube="pinn" role="img" aria-label="Même coupe pour le PINN, avec les observations à leurs phases">Comparaison du champ de vitesse reconstruit.</canvas></figure>
+  </div>
+  <div class="flow-scale text-small"><span data-scale-label>Vitesse u</span><span data-scale-min>0</span><span class="flow-bar" data-scale-bar></span><span data-scale-max></span><span>Unités adimensionnées · traceurs et longueur illustratifs</span></div>
+  <div class="flow-caption text-small"><span data-error-label class="tabular-nums"></span><span data-phase-state></span></div>
+  <div class="flow-legend" aria-label="Courbes affichées">
+    <button type="button" aria-pressed="true" data-series="reference"><span class="flow-swatch"></span>Référence</button>
+    <button type="button" aria-pressed="true" data-series="pinn"><span class="flow-swatch pinn"></span>PINN</button>
+    <span class="text-small">Zone grisée : aucune vitesse observée</span>
+  </div>
+  <div class="flow-charts">
+    <figure class="flow-chart" data-key="force"><figcaption>Forçage retrouvé</figcaption><svg role="img" aria-label="Forçage réel et estimé au cours du cycle"></svg></figure>
+    <figure class="flow-chart" data-key="flow"><figcaption>Débit</figcaption><svg role="img" aria-label="Débit réel et estimé au cours du cycle"></svg></figure>
+    <figure class="flow-chart" data-key="shear"><figcaption>Cisaillement à la paroi</figcaption><svg role="img" aria-label="Cisaillement signé réel et estimé au cours du cycle"></svg></figure>
+  </div>
+  <div class="flow-tip tooltip text-small" role="tooltip" hidden></div>
+  <div class="sr-only">Résultats de neuf entraînements enregistrés à budget identique. Le forçage est inconnu pendant l'entraînement. La géométrie, la fréquence et la famille harmonique sont connues. Les traceurs ne sont pas des cellules sanguines. Le mouvement axial est à une échelle illustrative. Lecture au clavier possible avec le curseur de phase.</div>
+  <script type="application/json" id="pinn-flow-data">__FLOW_DATA__</script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script>
+  (() => {
+    __FLOW_MATH__
+    const root=document.getElementById('pinn-flow-lab');
+    if (!root) return;
+    const $=s=>root.querySelector(s), $$=s=>Array.from(root.querySelectorAll(s));
+    if (typeof d3==='undefined') { $('[data-status]').textContent='Les graphiques ne se sont pas chargés. Réouvrir cette vue.'; return; }
+    const D=JSON.parse(document.getElementById('pinn-flow-data').textContent);
+    const rs=D.reference.r,ts=D.reference.t,M=FlowMath;
+    D.reference.acc=M.cumulative(D.reference.velocity,ts);
+    D.cases.forEach(c=>c.acc=M.cumulative(c.velocity,ts));
+    let selected,phase=.1,cycles=0,playing=false,last=0,raf=0;
+    let visibility={reference:true,pinn:true},theme={},charts=[];
+    const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+    const particles=Array.from({length:100},(_,i)=>({
+      r:((i*37%101)/100*1.9-.95), x:(i*0.61803398875)%1
+    }));
+    function color(token) {
+      const probe=document.createElement('span');probe.style.color=`var(${token})`;
+      probe.style.display='none';root.appendChild(probe);
+      const value=getComputedStyle(probe).color;probe.remove();
+      const pixel=document.createElement('canvas');pixel.width=1;pixel.height=1;
+      const ctx=pixel.getContext('2d');ctx.fillStyle=value;ctx.fillRect(0,0,1,1);
+      const rgba=ctx.getImageData(0,0,1,1).data;
+      return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]/255})`;
+    }
+    function readTheme() {
+      theme={bg:color('--background'),fg:color('--foreground'),border:color('--border'),
+        muted:color('--muted-foreground'),s1:color('--viz-series-1'),s2:color('--viz-series-2'),
+        velocity:color('--viz-series-4'),negative:color('--viz-series-3'),positive:color('--viz-series-5')};
+    }
+    function pick() {
+      selected=D.cases.find(c=>c.noise===Number($('[data-noise]').value)&&c.seed===Number($('[data-seed]').value));
+      cycles=0;
+      $('[data-error-label]').textContent=`Erreur globale du forçage : ${(selected.metrics.force_relative_l2*100).toFixed(2)} % · 2 000 étapes Adam`;
+      drawCharts();drawTubes();updatePhase(true);
+    }
+    function velocityColor(v) {
+      const a=Math.max(0,Math.min(1,(v-D.velocity_min)/(D.velocity_max-D.velocity_min)));
+      return d3.interpolateRgb(theme.bg,theme.velocity)(.08+.62*a);
+    }
+    function errorColor(v) {
+      return d3.interpolateRgb(theme.bg,v<0?theme.negative:theme.positive)(Math.min(1,Math.abs(v)/D.error_max)*.78);
+    }
+    function drawTubes() {
+      const error=$('[data-color]').value==='error';
+      $('[data-scale-label]').textContent=error?'Erreur de vitesse (PINN − référence)':'Vitesse u';
+      $('[data-scale-min]').textContent=(error?-D.error_max:D.velocity_min).toFixed(2);
+      $('[data-scale-max]').textContent=(error?D.error_max:D.velocity_max).toFixed(2);
+      $('[data-scale-bar]').style.background=error?`linear-gradient(to right,${errorColor(-D.error_max)},${theme.bg},${errorColor(D.error_max)})`:
+        `linear-gradient(to right,${velocityColor(D.velocity_min)},${velocityColor(D.velocity_max)})`;
+      $$('[data-tube]').forEach(canvas=>{
+        const w=canvas.clientWidth,h=190,dpr=window.devicePixelRatio||1;
+        if (!w) return;
+        if(canvas.width!==Math.round(w*dpr)||canvas.height!==h*dpr){canvas.width=Math.round(w*dpr);canvas.height=h*dpr;}
+        const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+        const left=32,right=w-9,top=19,bottom=167,middle=(top+bottom)/2,half=(bottom-top)/2;
+        const isPinn=canvas.dataset.tube==='pinn';const data=isPinn?selected:D.reference;
+        for(let row=0;row<74;row++){
+          const y=top+(bottom-top)*row/74,r=Math.abs((y+(bottom-top)/148-middle)/half);
+          const v=M.sample(data.velocity,rs,ts,r,phase),truth=M.sample(D.reference.velocity,rs,ts,r,phase);
+          ctx.fillStyle=error?errorColor(v-truth):velocityColor(v);ctx.fillRect(left,y,right-left,(bottom-top)/74+.4);
+        }
+        ctx.strokeStyle=theme.border;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(left,top);ctx.lineTo(right,top);ctx.moveTo(left,bottom);ctx.lineTo(right,bottom);ctx.stroke();
+        ctx.strokeStyle=theme.border;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(left,middle);ctx.lineTo(right,middle);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle=theme.fg;ctx.font=getComputedStyle(root).font;ctx.textAlign='right';
+        ctx.fillText('+1',left-7,top+4);ctx.fillText('0',left-7,middle+4);ctx.fillText('−1',left-7,bottom+4);
+        ctx.save();ctx.beginPath();ctx.rect(left,top,right-left,bottom-top);ctx.clip();
+        for(const p of particles){
+          const r=Math.abs(p.r), displacement=M.integral(data.velocity,data.acc,rs,ts,r,phase)+cycles*M.linear(rs,data.acc[data.acc.length-1],r);
+          const x=left+((p.x+.7*displacement)%1+1)%1*(right-left), y=middle-p.r*half;
+          ctx.globalAlpha=.8;ctx.fillStyle=theme.fg;ctx.beginPath();ctx.arc(x,y,2.1,0,Math.PI*2);ctx.fill();
+        }
+        ctx.globalAlpha=1;
+        if(isPinn){
+          selected.observations.r_t.forEach((point,i)=>{
+            if(Math.abs(point[1]-phase)<.0025){
+              ctx.beginPath();ctx.arc((left+right)/2,middle-point[0]*half,4.5,0,Math.PI*2);
+              ctx.fillStyle=theme.bg;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=theme.s2;ctx.stroke();
+            }
+          });
+        }
+        ctx.restore();ctx.fillStyle=theme.muted;ctx.textAlign='center';
+        ctx.fillText('Coupe longitudinale →',(left+right)/2,187);
+      });
+    }
+    function updatePhase(announce=false) {
+      $('[data-phase]').value=phase*100;
+      $('[data-phase-label]').textContent=`${(phase*100).toFixed(1)} %`;
+      const hidden=phase>=.3&&phase<=.65;
+      const observed=selected.observations.r_t.some(p=>Math.abs(p[1]-phase)<.0025);
+      const label=hidden?'Plage sans aucune mesure de vitesse':observed?'Phase observée · cercles dans le tube PINN':'Instant sans observation directe';
+      $('[data-phase-state]').textContent=hidden?'Reconstruction entre les phases observées':'';
+      $('[data-status]').setAttribute('aria-live',announce?'polite':'off');
+      $('[data-status]').textContent=label;
+      charts.forEach(c=>{
+        c.phaseLine.attr('x1',c.x(phase)).attr('x2',c.x(phase));
+        c.phaseValue.text([visibility.reference?`Réf. ${M.linear(ts,D.reference[c.key],phase).toFixed(2)}`:null,
+          visibility.pinn?`PINN ${M.linear(ts,selected[c.key],phase).toFixed(2)}`:null].filter(Boolean).join(' · '));
+      });
+    }
+    function drawCharts() {
+      charts=[];
+      $$('.flow-chart').forEach(container=>{
+        const key=container.dataset.key,w=container.clientWidth,h=240;
+        if(w<1)return;
+        const margin={left:64,right:16,top:34,bottom:52};
+        const svg=d3.select(container.querySelector('svg')).attr('viewBox',`0 0 ${w} ${h}`).attr('height',h);
+        svg.selectAll('*').remove();
+        const all=[...D.reference[key],...selected[key]],extent=d3.extent(all),pad=Math.max((extent[1]-extent[0])*.12,.03);
+        const x=d3.scaleLinear().domain([0,1]).range([margin.left+3,w-margin.right-3]);
+        const y=d3.scaleLinear().domain([extent[0]-pad,extent[1]+pad]).range([h-margin.bottom-3,margin.top+3]);
+        svg.append('rect').attr('data-chart-frame','').attr('x',margin.left).attr('y',margin.top).attr('width',w-margin.left-margin.right).attr('height',h-margin.top-margin.bottom).attr('fill','none').attr('stroke','var(--border)');
+        svg.append('rect').attr('x',x(.3)).attr('y',margin.top).attr('width',x(.65)-x(.3)).attr('height',h-margin.top-margin.bottom).attr('fill','var(--muted-foreground)').attr('opacity',.10);
+        svg.append('g').attr('transform',`translate(0,${h-margin.bottom})`).call(d3.axisBottom(x).ticks(w<400?3:4).tickFormat(v=>`${Math.round(v*100)}`));
+        svg.append('g').attr('transform',`translate(${margin.left},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format('.1f')));
+        svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(margin.left+w-margin.right)/2).attr('y',h-9).attr('text-anchor','middle').text('Cycle (%)');
+        svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('transform',`translate(14,${(margin.top+h-margin.bottom)/2}) rotate(-90)`).attr('text-anchor','middle').text({force:'G (sans unité)',flow:'Q* (sans unité)',shear:'τ* (sans unité)'}[key]);
+        const line=d3.line().x((d,i)=>x(ts[i])).y(d=>y(d));
+        [['reference',D.reference[key],1],['pinn',selected[key],2]].forEach(([name,values,n])=>{
+          if(visibility[name])svg.append('path').attr('d',line(values)).attr('fill','none').attr('stroke',`var(--viz-series-${n})`).attr('stroke-width',2).attr('stroke-dasharray',name==='pinn'?'5 4':null);
+        });
+        const phaseLine=svg.append('line').attr('y1',margin.top).attr('y2',h-margin.bottom).attr('stroke','var(--foreground)').attr('opacity',.55);
+        const phaseValue=svg.append('text').attr('x',margin.left).attr('y',20);
+        const hover=svg.append('g').attr('visibility','hidden');
+        const hoverLine=hover.append('line').attr('data-chart-hover-guide','').attr('y1',margin.top).attr('y2',h-margin.bottom).attr('stroke','var(--foreground)').attr('stroke-dasharray','2 3');
+        const marks=[1,2].map(n=>hover.append('circle').attr('data-chart-hover-marker','').attr('r',3.5).attr('fill',`var(--viz-series-${n})`));
+        const overlay=svg.append('rect').attr('data-chart-hit','').attr('data-chart-hover-overlay','cross-series').attr('x',margin.left).attr('y',margin.top).attr('width',w-margin.left-margin.right).attr('height',h-margin.top-margin.bottom).attr('fill','transparent');
+        function hoverAt(event) {
+          const [px]=d3.pointer(event,svg.node()),a=Math.max(0,Math.min(1,x.invert(px)));
+          hover.attr('visibility','visible');hoverLine.attr('x1',x(a)).attr('x2',x(a));
+          const values=[M.linear(ts,D.reference[key],a),M.linear(ts,selected[key],a)];
+          marks.forEach((m,i)=>m.attr('cx',x(a)).attr('cy',y(values[i])).attr('visibility',visibility[i===0?'reference':'pinn']?'visible':'hidden'));
+          const tip=$('.flow-tip');tip.hidden=false;tip.replaceChildren();
+          [`${(a*100).toFixed(1)} % du cycle`,visibility.reference?`Référence : ${values[0].toFixed(3)}`:null,visibility.pinn?`PINN : ${values[1].toFixed(3)}`:null].filter(Boolean).forEach(s=>{const d=document.createElement('div');d.textContent=s;tip.appendChild(d);});
+          const bounds=root.getBoundingClientRect();
+          tip.style.left=`${Math.max(0,Math.min(event.clientX-bounds.left+12,bounds.width-tip.offsetWidth))}px`;
+          tip.style.top=`${Math.max(0,event.clientY-bounds.top-tip.offsetHeight-10)}px`;
+          return a;
+        }
+        overlay.on('pointermove',hoverAt).on('pointerleave',()=>{hover.attr('visibility','hidden');$('.flow-tip').hidden=true;})
+          .on('click',event=>{phase=hoverAt(event);cycles=0;pause();updatePhase(true);drawTubes();});
+        charts.push({key,x,phaseLine,phaseValue});
+      });
+      updatePhase(false);
+    }
+    function pause(){playing=false;cancelAnimationFrame(raf);$('[data-play]').textContent='Lire le cycle';$('[data-status]').setAttribute('aria-live','polite');}
+    function tick(now){
+      if(!playing||!root.isConnected)return;
+      const dt=Math.min((now-last)/1000,.05);last=now;phase+=dt/6;
+      if(phase>=1){phase-=1;cycles++;}
+      drawTubes();updatePhase(false);raf=requestAnimationFrame(tick);
+    }
+    $('[data-play]').addEventListener('click',()=>{
+      if(playing){pause();updatePhase(true);}else{playing=true;last=performance.now();$('[data-play]').textContent='Pause';raf=requestAnimationFrame(tick);}
+    });
+    $('[data-phase]').addEventListener('input',event=>{pause();cycles=0;phase=Number(event.target.value)/100;updatePhase(true);drawTubes();});
+    ['[data-noise]','[data-seed]'].forEach(s=>$(s).addEventListener('change',()=>{pause();pick();}));
+    $('[data-color]').addEventListener('change',drawTubes);
+    $$('[data-series]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.series;visibility[key]=!visibility[key];b.setAttribute('aria-pressed',String(visibility[key]));drawCharts();}));
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+    reduced.addEventListener('change',()=>{if(reduced.matches)pause();});
+    readTheme();pick();
+    let resizeTimer;
+    const ro=new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{drawCharts();drawTubes();},80);});ro.observe(root);
+    const mo=new MutationObserver(()=>{readTheme();drawCharts();drawTubes();});
+    mo.observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});
+  })();
+  </script>
+</div>

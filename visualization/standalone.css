@@ -1,0 +1,44 @@
+:root { color-scheme: light; }
+html, body { background: #f3f5f7 !important; }
+body { padding: 24px !important; }
+#pinn-flow-lab {
+  --background: #ffffff; --foreground: #1c3343; --border: #dce5ea;
+  --muted-foreground: #627583; --popover: #ffffff; --popover-foreground: #1c3343;
+  --viz-series-1: #168582; --viz-series-2: #dd7245; --viz-series-3: #5577cb;
+  --viz-series-4: #238d9a; --viz-series-5: #d76449;
+  background: #fff; max-width: 1180px; margin: 0 auto; padding: 36px;
+  border-radius: 24px; box-shadow: 0 12px 50px #203d5110;
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+#pinn-flow-lab * { box-sizing: border-box; }
+#pinn-flow-lab h2 { font: 500 clamp(25px, 3vw, 38px)/1.15 -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -1px; margin: 0 0 12px; max-width: 780px; }
+#pinn-flow-lab h2::before { content: 'HEMODYNAMICS LAB / 01'; display: block; font: 600 11px/1.5 -apple-system, sans-serif; letter-spacing: 2px; color: #168582; margin-bottom: 12px; }
+#pinn-flow-lab .intro { color: #627583; margin: 0 0 28px; max-width: 780px; }
+#pinn-flow-lab .flow-controls { padding: 18px 20px; background: #f4f7f9; border-radius: 14px; gap: 24px; }
+#pinn-flow-lab .flow-controls label { display: grid; gap: 7px; color: #627583; font-size: 12px; font-weight: 500; }
+#pinn-flow-lab .form-select { width: 100%; min-height: 42px; background-color: #fff; color: #1c3343; border: 1px solid #dce5ea; border-radius: 8px; font: inherit; font-size: 14px; padding: 9px 32px 9px 12px; }
+#pinn-flow-lab .flow-phase { margin: 24px 0 14px; }
+#pinn-flow-lab .viz-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+#pinn-flow-lab .btn { background: #1c3343; color: #fff; border: 0; border-radius: 9px; padding: 11px 20px; font: 500 14px/1.4 -apple-system, sans-serif; cursor: pointer; }
+#pinn-flow-lab .btn:hover { background: #284a60; }
+#pinn-flow-lab .form-range { display: block; width: 100%; accent-color: #168582; margin: 16px 0 10px; }
+#pinn-flow-lab .flow-caption { color: #627583; }
+#pinn-flow-lab .flow-status { color: #168582; margin-bottom: 10px; }
+#pinn-flow-lab .flow-tubes { gap: 24px; }
+#pinn-flow-lab .flow-tubes figure { background: #f8fafb; padding: 16px 12px 6px; border-radius: 12px; }
+#pinn-flow-lab figcaption { font-size: 14px; font-weight: 500; margin: 0 0 6px 4px; }
+#pinn-flow-lab .flow-tubes figure:first-child figcaption::before { content: ''; display: inline-block; width: 8px; height: 8px; background: #168582; border-radius: 50%; margin-right: 8px; }
+#pinn-flow-lab .flow-tubes figure:last-child figcaption::before { content: ''; display: inline-block; width: 8px; height: 8px; background: #dd7245; border-radius: 50%; margin-right: 8px; }
+#pinn-flow-lab .flow-scale { margin: 16px 0; color: #627583; }
+#pinn-flow-lab .flow-bar { border-radius: 5px; }
+#pinn-flow-lab .flow-legend { margin: 26px 0 16px; padding-top: 20px; border-top: 1px solid #e6ecef; align-items: center; }
+#pinn-flow-lab .flow-charts { gap: 24px; }
+#pinn-flow-lab .flow-chart figcaption { margin-bottom: 10px; }
+#pinn-flow-lab .text-small { font-size: 12px; }
+#pinn-flow-lab .tabular-nums { font-variant-numeric: tabular-nums; }
+#pinn-flow-lab .flow-tip { border-radius: 9px; box-shadow: 0 4px 16px #203d5120; }
+#pinn-flow-lab .lab-footer { margin-top: 20px; color: #627583; font-size: 12px; border-top: 1px solid #e6ecef; padding-top: 16px; }
+#pinn-flow-lab .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width: 800px) { body { padding: 8px !important; } #pinn-flow-lab { padding: 20px; border-radius: 16px; } }
+@media (max-width: 1020px) { #pinn-flow-lab .flow-charts { grid-template-columns: 1fr; } }
+@media (max-width: 440px) { #pinn-flow-lab { padding: 14px; } #pinn-flow-lab .flow-controls { padding: 14px; gap: 12px; } #pinn-flow-lab .flow-caption { justify-content: flex-start; } }

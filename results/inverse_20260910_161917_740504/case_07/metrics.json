@@ -1,0 +1,17 @@
+{
+  "seed": 42,
+  "noise_fraction": 0.1,
+  "points": 12,
+  "steps": 3000,
+  "true_a": 6.0,
+  "estimated_a_pinn": 5.808685302734375,
+  "estimated_a_least_squares": 5.813736915588379,
+  "a_relative_error_percent": 3.1885782877604165,
+  "rmse_pinn": 0.03401057422161102,
+  "rmse_network": 0.11361014097929001,
+  "rmse_least_squares": 0.034004177898168564,
+  "rmse_pinn_on_noisy_data": 0.1350119560956955,
+  "weighted_physics_residual_rmse": 0.003627949161455035,
+  "seconds_pinn": 19.487886521999997,
+  "seconds_network": 8.72516872700001
+}

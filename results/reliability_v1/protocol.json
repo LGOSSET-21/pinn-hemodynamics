@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "counts": [
+    12,
+    24,
+    48,
+    96
+  ],
+  "noise": [
+    0.0,
+    0.03,
+    0.1,
+    0.2
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "steps": 1000,
+  "lbfgs_max_iter": 100,
+  "hidden": [
+    0.3,
+    0.65
+  ],
+  "velocity_scale": 1.5,
+  "observed_phases": [
+    0.0,
+    0.1,
+    0.2,
+    0.75,
+    0.85,
+    0.95
+  ],
+  "alpha": 3.0,
+  "location_design": "nested base-2 van der Corput radii, six fixed phases",
+  "methods": [
+    "pinn",
+    "data_only",
+    "analytical"
+  ],
+  "torch_version": "2.2.2",
+  "numpy_version": "1.26.4",
+  "source_sha256": {
+    "reliability_study.py": "d5cbc09c28615e8fa423747cdb84e786c803ab488e0bfbbeb3f64ee38e704a65",
+    "train_inverse_pulsatile.py": "2abfb7aaf91eeb84f1f1ada3eafb4e62c2bfbcd7a9959eca82662dc29bf1b4d3",
+    "train_pulsatile.py": "5f46a89a59d7f4f776f4d990481d990794ab323feee0b178552034fb0d29eac1",
+    "inverse_pulsatile_physics.py": "2364096d448684029bc54ad63fddf336fd775f3387f4b76d351170c9f514a6da",
+    "pulsatile_physics.py": "8ccb08a70635ad0b7fa2d2d8f6b06e6ae790abbe17eb59484e165a4f1ce3bc90"
+  }
+}

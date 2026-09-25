@@ -1,0 +1,56 @@
+{
+  "true_coefficients": [
+    6.0,
+    3.2,
+    2.4
+  ],
+  "truth": {
+    "mean": 6.0,
+    "amplitude": 4.0,
+    "peak_phase_cycles": 0.10241638234956672
+  },
+  "analytical_design_condition": 5.941646411523825,
+  "pinn": {
+    "coefficients": [
+      6.013117790222168,
+      3.0701847076416016,
+      2.5234923362731934
+    ],
+    "mean": 6.013117790222168,
+    "amplitude": 3.974172581842148,
+    "peak_phase_cycles": 0.10949439688730475,
+    "phase_error_cycles": 0.007078014537738042,
+    "force_relative_l2": 0.019099432569322134,
+    "hidden_force_relative_l2": 0.0351914228109128,
+    "velocity_rmse": 0.030388789117456218,
+    "hidden_velocity_rmse": 0.02840048470197425,
+    "flow_relative_l2": 0.017299122134310913,
+    "shear_relative_l2": 0.01732544231577906,
+    "accuracy_targets_met": true
+  },
+  "analytical": {
+    "coefficients": [
+      6.129923525334754,
+      3.0866217365287083,
+      2.539154633002992
+    ],
+    "mean": 6.129923525334754,
+    "amplitude": 3.9968162322919047,
+    "peak_phase_cycles": 0.10956060201781193,
+    "phase_error_cycles": 0.007144219668245189,
+    "force_relative_l2": 0.02712324962678248,
+    "hidden_force_relative_l2": 0.05979597088407896,
+    "velocity_rmse": 0.026632735035208,
+    "hidden_velocity_rmse": 0.037243754224068594,
+    "flow_relative_l2": 0.02367980161036488,
+    "shear_relative_l2": 0.02412769302460353,
+    "accuracy_targets_met": true
+  },
+  "seed": 42,
+  "noise": 0.1,
+  "steps": 2000,
+  "training_seconds": 158.37939282000002,
+  "torch_version": "2.2.2",
+  "numpy_version": "1.26.4",
+  "weighted_residual_rmse": 0.221364364027977
+}

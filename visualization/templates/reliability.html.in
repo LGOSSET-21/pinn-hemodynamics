@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reconstruction reliability · Hemodynamics Lab</title>
+<style>
+:root{color-scheme:light;--ink:#193344;--muted:#617785;--line:#dce6eb;--teal:#168582;--orange:#de7548}
+*{box-sizing:border-box}body{margin:0;background:#f1f5f7;color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}main{max-width:1280px;margin:28px auto;padding:32px 40px;background:white;border-radius:22px}header{margin-bottom:26px}.eyebrow{text-transform:uppercase;letter-spacing:2px;color:var(--teal);font-size:11px;font-weight:600}h1{font-size:clamp(28px,4vw,42px);font-weight:500;letter-spacing:-1.2px;line-height:1.15;margin:12px 0}h2{font-size:24px;font-weight:500;margin:0 0 10px}h3{font-size:15px;font-weight:600;margin:0 0 10px}p{margin:8px 0}.intro{max-width:850px;color:var(--muted)}.protocol{display:flex;flex-wrap:wrap;gap:10px 28px;background:#f4f8fa;padding:15px 18px;border-radius:10px;margin-top:20px;font-size:13px}.status{font-weight:600}.maps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 28px;margin-top:24px}.map{min-width:0}.map .method{font-size:12px;color:var(--muted);margin-bottom:4px}.scale{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--muted);margin-bottom:10px}.gradient{height:6px;flex:1;background:linear-gradient(90deg,#f7fcf0,#084081)}table{border-collapse:separate;border-spacing:4px;width:100%;table-layout:fixed}th{font-size:11px;font-weight:500;color:var(--muted);text-align:center}th:first-child{width:33px}td{padding:0}.cell{border:2px solid transparent;border-radius:5px;width:100%;min-height:49px;cursor:pointer;padding:5px 0;font-family:inherit;font-weight:500;font-size:13px;line-height:1.3;font-variant-numeric:tabular-nums}.cell span{display:block;font-size:10px;font-weight:400}.cell[aria-pressed=true]{border-color:#111;box-shadow:0 0 0 2px #fff inset}.cell:disabled{background:#f2f4f5;color:#7d8c95;cursor:default}.axis-hint{font-size:11px;color:var(--muted);text-align:center}.note{font-size:12px;color:var(--muted)}section.explorer{border-top:1px solid var(--line);margin-top:32px;padding-top:28px}.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:end;margin:18px 0}label{display:grid;gap:5px;font-size:12px;color:var(--muted)}select,button.play{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--ink);min-height:42px}button.play{background:var(--ink);color:#fff;cursor:pointer;min-width:118px}.phase-control{flex:1;min-width:200px}input[type=range]{width:100%;accent-color:var(--teal);margin:10px 0}.detail-values{padding:12px 16px;background:#f4f8fa;border-radius:8px;font-size:13px;font-variant-numeric:tabular-nums}.tubes{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:20px 0 8px}.tubes figure{background:#f8fafb;border-radius:10px;padding:12px}.tubes canvas{width:100%;height:170px;display:block}figure{margin:0;min-width:0}figcaption{font-size:13px;font-weight:500}.plots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:22px 0}.plots svg{width:100%;display:block}svg text{font:12px -apple-system,sans-serif;fill:var(--ink)}svg .domain,svg .tick line{stroke:var(--line)}.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--muted)}.legend i{display:inline-block;width:22px;border-top:3px solid var(--teal);margin-right:6px;vertical-align:middle}.legend i.estimate{border-color:var(--orange);border-top-style:dashed}.legend i.band{border:0;height:10px;background:#e4e9ee}.methods{border-top:1px solid var(--line);padding-top:20px;margin-top:26px;color:var(--muted);font-size:13px}.methods summary{cursor:pointer;font-weight:600;color:var(--ink)}a{color:var(--teal)}footer{margin-top:24px;font-size:12px;color:var(--muted)}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:1000px){main{padding:24px;margin:12px}.maps{gap:20px 12px}.cell{font-size:11px}.plots{grid-template-columns:1fr}}
+@media(max-width:760px){.maps{grid-template-columns:1fr}.map{max-width:480px;width:100%;margin:auto}.cell{font-size:14px}.cell span{font-size:11px}.tubes{grid-template-columns:1fr}main{padding:18px;margin:6px}.protocol{gap:7px}.controls{gap:10px}}
+</style>
+</head>
+<body><main id="study">
+<header><div class="eyebrow">Hemodynamics Lab / Reliability study</div><h1>When does reconstruction hold up?</h1><p class="intro">Vary the number of measurements and the noise. Compare the inverse PINN with a network without a PDE loss and an analytical fit — using exactly the same observations.</p>
+<div class="protocol"><span class="status" id="completion"></span><span>4 measurement counts × 4 noise levels × 3 seeds</span><span>No observations at 30–65% of the cycle</span></div></header>
+<p class="note">Each cell shows mean error ± sample SD (%). Darker means larger error; scales are shared across methods for each metric. Select a cell to inspect an individual run. No pass/fail threshold is assumed.</p>
+<div class="maps" id="maps" aria-label="Error maps for three methods and three metrics"></div>
+<section class="explorer" aria-labelledby="detail-title"><div class="eyebrow">Inspect one experiment</div><h2 id="detail-title">Loading experiment…</h2>
+<div class="controls"><label>Method<select id="method"><option value="pinn">Inverse PINN</option><option value="data_only">Data-only NN (no PDE loss)</option><option value="analytical">Analytical least squares</option></select></label><label>Repetition<select id="seed"><option>42</option><option>43</option><option>44</option></select></label><button type="button" class="play" id="play">Play cycle</button><label class="phase-control">Cycle phase: <output id="phase-label">45%</output><input id="phase" type="range" min="0" max="100" step="0.1" value="45" aria-label="Cycle phase in percent"></label></div>
+<div class="detail-values" id="values" aria-live="polite"></div><p class="note" id="phase-status"></p>
+<div class="tubes"><figure><figcaption>Simulated reference</figcaption><canvas id="truth-tube" role="img" aria-label="Reference velocity field with illustrative moving tracers"></canvas></figure><figure><figcaption id="estimate-caption">Reconstructed velocity</figcaption><canvas id="estimate-tube" role="img" aria-label="Reconstructed velocity field with illustrative moving tracers"></canvas></figure></div>
+<p class="note">Colour represents velocity on a shared scale: <span id="velocity-scale"></span>. Tracers and axial distance are illustrative; they are not blood cells.</p>
+<div class="legend"><span><i></i>Reference</span><span><i class="estimate"></i>Selected method</span><span><i class="band"></i>No velocity observations</span></div>
+<div class="plots"><figure data-key="velocity"><figcaption>Velocity profile at the selected phase</figcaption><svg role="img" aria-label="Reference and reconstructed radial velocity profiles"></svg></figure><figure data-key="flow"><figcaption>Flow over the cycle</figcaption><svg role="img" aria-label="Reference and reconstructed flow over the cycle"></svg></figure><figure data-key="shear"><figcaption>Wall shear over the cycle</figcaption><svg role="img" aria-label="Reference and reconstructed signed wall shear over the cycle"></svg></figure></div>
+<p class="note">For individual seeds, the displayed errors may differ from the cell average. The velocity plot and tracers are interpolated for display; all error metrics use the original evaluation grid.</p></section>
+<details class="methods"><summary>How to read the benchmark</summary><p><strong>Velocity:</strong> hidden-phase RMSE divided by the fixed velocity scale 1.5. <strong>Flow and wall shear:</strong> full-cycle relative L2 errors. All are expressed as percentages; their definitions differ.</p><p>Noise is Gaussian with a standard deviation of 0%, 3%, 10% or 20% of 1.5, not of each local velocity. Increasing the measurement count adds nested radial locations at six fixed observed phases. Each seed changes both observation noise and neural initialization.</p><p>Both networks use the same architecture, periodic time features, exact centre symmetry and no-slip wall conditions. The data-only network omits the differential-equation loss. Both receive 1,000 Adam steps and up to 100 L-BFGS iterations; this is an equal iteration budget, not equal runtime.</p><p>The analytical fit knows the correct harmonic solution family. Geometry, frequency and α = 3 are known. These results describe a favourable synthetic benchmark, not clinical validation or universal superiority of one method. Three seeds give preliminary variability estimates, not confidence intervals.</p><p id="timing"></p><p>Timing caveat: the pilot ran sequentially and the remaining cases used up to three concurrent CPU processes. These times include contention and are not a controlled speed benchmark.</p><p><a href="../results/reliability_v1/REPORT.md">Full methods and results</a> · <a href="../results/reliability_v1/reliability-map.png">High-resolution figure</a> · <a href="../results/reliability_v1/reliability-map.pdf">PDF figure</a></p></details>
+<footer>Saved experiment results · Offline explorer · No training is performed by this page</footer>
+<noscript>Enable JavaScript to explore the saved results. The static PNG/PDF figures remain available in the results folder.</noscript>
+</main>
+<script id="study-data" type="application/json">__STUDY_DATA__</script><script>__D3_LIBRARY__</script>
+<script>
+(()=>{
+__FLOW_MATH__
+const D=JSON.parse(document.getElementById('study-data').textContent),M=FlowMath,$=s=>document.querySelector(s),R=D.reference;
+let count=12,noise=0,method='pinn',seed=42,phase=.45,cycle=0,playing=false,raf=0,last=0,current;
+const particles=Array.from({length:90},(_,i)=>({r:(i*37%97)/96*1.9-.95,x:(i*.61803398875)%1}));
+R.acc=M.cumulative(R.velocity,R.t);
+$('#completion').textContent=`${D.cases.length} / 48 runs completed`;
+function fmt(v){return v<.01?v.toExponential(1):v.toFixed(v<10?2:1)}
+function buildMaps(){
+ const root=$('#maps');root.replaceChildren();
+ D.methods.forEach((m,mi)=>D.metrics.forEach((metric,ki)=>{
+  const vmax=Math.max(...D.cells.flatMap(c=>D.methods.map(q=>c.values[q][metric].mean||0)),.000001);
+  const panel=document.createElement('div');panel.className='map';
+  const label=document.createElement('div');label.className='method';label.textContent=D.labels[mi];panel.append(label);
+  const title=document.createElement('h3');title.textContent=D.titles[ki];panel.append(title);
+  const scale=document.createElement('div');scale.className='scale';scale.innerHTML=`<span>0%</span><span class="gradient"></span><span>${fmt(vmax)}%</span>`;panel.append(scale);
+  const table=document.createElement('table');table.setAttribute('aria-label',`${D.labels[mi]} — ${D.titles[ki]}`);
+  const head=table.createTHead().insertRow();['Noise',12,24,48,96].forEach(s=>{const th=document.createElement('th');th.textContent=s;head.append(th)});
+  const body=table.createTBody();[0,.03,.1,.2].forEach(b=>{
+   const tr=body.insertRow(),th=document.createElement('th');th.textContent=`${Math.round(b*100)}%`;tr.append(th);
+   [12,24,48,96].forEach(n=>{
+    const c=D.cells.find(c=>c.count===n&&c.noise===b),v=c.values[m][metric],td=tr.insertCell(),button=document.createElement('button');
+    button.type='button';button.className='cell';button.disabled=!c.repeats;button.dataset.count=n;button.dataset.noise=b;button.dataset.method=m;
+    button.setAttribute('aria-pressed',String(n===count&&b===noise&&m===method));
+    if(v.mean===null)button.textContent='Pending';else{
+     button.style.background=d3.interpolateYlGnBu(v.mean/vmax);button.style.color=v.mean/vmax>.55?'#fff':'#193344';
+     button.append(document.createTextNode(fmt(v.mean)));const sd=document.createElement('span');sd.textContent=v.sd===null?'1/3 runs':`± ${fmt(v.sd)}${c.repeats<3?' · '+c.repeats+'/3':''}`;button.append(sd);
+    }
+    button.setAttribute('aria-label',`${n} observations, ${b*100}% noise, ${D.labels[mi]}, ${D.titles[ki]}: ${v.mean===null?'pending':v.mean.toFixed(5)+' percent'}, ${c.repeats} runs`);
+    button.addEventListener('click',()=>{count=n;noise=b;method=m;pause();selectCase();$('#detail-title').scrollIntoView({behavior:'auto',block:'start'})});td.append(button);
+   });
+  });panel.append(table);const hint=document.createElement('div');hint.className='axis-hint';hint.textContent='Number of velocity observations →';panel.append(hint);root.append(panel);
+ }));
+}
+function selectCase(){
+ const options=D.cases.filter(c=>c.count===count&&c.noise===noise);if(!options.length)return;
+ if(!options.some(c=>c.seed===seed))seed=options[0].seed;
+ current=options.find(c=>c.seed===seed);$('#seed').value=seed;$('#method').value=method;
+ Array.from($('#seed').options).forEach(o=>o.disabled=!options.some(c=>c.seed===Number(o.value)));
+ const f=current.fields[method];if(!f.acc)f.acc=M.cumulative(f.velocity,R.t);cycle=0;
+ $('#detail-title').textContent=`${count} observations · ${Math.round(noise*100)}% noise`;
+ $('#estimate-caption').textContent=D.labels[D.methods.indexOf(method)];
+ const v=current.metrics[method];$('#values').textContent=`Seed ${seed} · Hidden velocity error: ${fmt(v.velocity)}% · Flow error: ${fmt(v.flow)}% · Wall-shear error: ${fmt(v.shear)}% · Fit time: ${current.seconds[method].toFixed(3)} s`;
+ document.querySelectorAll('.cell').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.count)===count&&Number(b.dataset.noise)===noise&&b.dataset.method===method)));
+ redraw();
+}
+const vExtent=d3.extent([R.velocity,...D.cases.flatMap(c=>D.methods.map(m=>c.fields[m].velocity))].flat(2));
+$('#velocity-scale').textContent=`${vExtent[0].toFixed(2)} to ${vExtent[1].toFixed(2)} (dimensionless)`;
+function tubes(){
+ [R,current.fields[method]].forEach((f,i)=>{
+  const canvas=$(i?'#estimate-tube':'#truth-tube'),w=canvas.clientWidth,h=170,dpr=devicePixelRatio||1;
+  if(!w)return;if(canvas.width!==Math.round(w*dpr)||canvas.height!==h*dpr){canvas.width=Math.round(w*dpr);canvas.height=h*dpr}
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  const left=28,right=w-8,top=18,bottom=144,mid=81,half=63;
+  for(let row=0;row<63;row++){const y=top+row*2,r=Math.abs((y+1-mid)/half),v=M.sample(f.velocity,R.r,R.t,r,phase);ctx.fillStyle=d3.interpolateYlGnBu(.08+.7*(v-vExtent[0])/(vExtent[1]-vExtent[0]));ctx.fillRect(left,y,right-left,2.1)}
+  ctx.strokeStyle='#a3b7c3';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,top);ctx.lineTo(right,top);ctx.moveTo(left,bottom);ctx.lineTo(right,bottom);ctx.stroke();
+  ctx.fillStyle='#193344';ctx.font='12px -apple-system, sans-serif';ctx.textAlign='right';ctx.fillText('1',22,22);ctx.fillText('0',22,85);ctx.fillText('−1',22,148);
+  ctx.save();ctx.beginPath();ctx.rect(left,top,right-left,bottom-top);ctx.clip();
+  particles.forEach(p=>{const r=Math.abs(p.r),d=M.integral(f.velocity,f.acc,R.r,R.t,r,phase)+cycle*M.linear(R.r,f.acc[f.acc.length-1],r);const x=left+((p.x+.7*d)%1+1)%1*(right-left);ctx.beginPath();ctx.arc(x,mid-p.r*half,1.8,0,Math.PI*2);ctx.fill()});ctx.restore();
+  ctx.fillStyle='#617785';ctx.textAlign='center';ctx.fillText('Illustrative axial direction →',w/2,165);
+ });
+}
+function plots(){
+ document.querySelectorAll('.plots figure').forEach(figure=>{
+  const key=figure.dataset.key,w=figure.clientWidth,h=230,left=64,right=12,top=18,bottom=48;
+  const axis=key==='velocity'?R.r:R.t;
+  const a=key==='velocity'?R.r.map(r=>M.sample(R.velocity,R.r,R.t,r,phase)):R[key];
+  const f=current.fields[method],b=key==='velocity'?R.r.map(r=>M.sample(f.velocity,R.r,R.t,r,phase)):f[key];
+  const extent=d3.extent([...a,...b]),pad=Math.max((extent[1]-extent[0])*.12,.01);
+  const x=d3.scaleLinear().domain([0,1]).range([left,w-right]),y=d3.scaleLinear().domain([extent[0]-pad,extent[1]+pad]).range([h-bottom,top]);
+  const svg=d3.select(figure.querySelector('svg')).attr('viewBox',`0 0 ${w} ${h}`);svg.selectAll('*').remove();
+  svg.append('rect').attr('x',left).attr('y',top).attr('width',w-left-right).attr('height',h-top-bottom).attr('fill','none').attr('stroke','#dce6eb');
+  if(key!=='velocity')svg.append('rect').attr('x',x(.3)).attr('y',top).attr('width',x(.65)-x(.3)).attr('height',h-top-bottom).attr('fill','#e4e9ee');
+  const line=d3.line().x((v,i)=>x(axis[i])).y(v=>y(v));
+  [a,b].forEach((v,i)=>svg.append('path').attr('d',line(v)).attr('fill','none').attr('stroke',i?'#de7548':'#168582').attr('stroke-width',2).attr('stroke-dasharray',i?'5 3':null));
+  if(key!=='velocity')svg.append('line').attr('x1',x(phase)).attr('x2',x(phase)).attr('y1',top).attr('y2',h-bottom).attr('stroke','#617785');
+  svg.append('g').attr('transform',`translate(0,${h-bottom})`).call(d3.axisBottom(x).ticks(4));svg.append('g').attr('transform',`translate(${left},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format('.2~g')));
+  svg.append('text').attr('x',(left+w-right)/2).attr('y',h-10).attr('text-anchor','middle').text(key==='velocity'?'Normalised radius r':'Cycle fraction t/T');
+  svg.append('text').attr('transform',`translate(16,${(top+h-bottom)/2}) rotate(-90)`).attr('text-anchor','middle').text({velocity:'Velocity u',flow:'Flow Q*',shear:'Wall shear τ*'}[key]);
+ });
+}
+function redraw(){if(!current)return;$('#phase').value=phase*100;$('#phase-label').textContent=`${(phase*100).toFixed(1)}%`;$('#phase-status').textContent=phase>=.3&&phase<=.65?'Hidden phase: no velocity observations in this interval.':'Outside the hidden interval; observations exist only at six discrete phases.';tubes();plots()}
+function pause(){playing=false;cancelAnimationFrame(raf);$('#play').textContent='Play cycle'}
+function tick(now){if(!playing)return;phase+=Math.min((now-last)/1000,.05)/6;last=now;if(phase>=1){phase-=1;cycle++}redraw();raf=requestAnimationFrame(tick)}
+$('#play').addEventListener('click',()=>{if(playing)pause();else{playing=true;last=performance.now();$('#play').textContent='Pause';raf=requestAnimationFrame(tick)}});
+$('#phase').addEventListener('input',e=>{pause();cycle=0;phase=Number(e.target.value)/100;redraw()});
+$('#method').addEventListener('change',e=>{method=e.target.value;pause();selectCase()});$('#seed').addEventListener('change',e=>{seed=Number(e.target.value);pause();selectCase()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',pause);
+let resizeTimer;new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(redraw,80)}).observe($('#study'));
+$('#timing').textContent=D.methods.map((m,i)=>`${D.labels[i]}: median fit time ${d3.median(D.cases,c=>c.seconds[m]).toFixed(3)} s`).join(' · ');
+buildMaps();if(!D.cases.some(c=>c.count===count&&c.noise===noise)){count=D.cases[0].count;noise=D.cases[0].noise}selectCase();
+})();
+</script></body></html>

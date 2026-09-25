@@ -1,0 +1,6 @@
+{
+  "pilot_workers": 1,
+  "study_workers": 3,
+  "torch_threads_per_worker": 1,
+  "note": "Fitting times include uncontrolled concurrent CPU contention; do not interpret them as controlled speed benchmarks."
+}

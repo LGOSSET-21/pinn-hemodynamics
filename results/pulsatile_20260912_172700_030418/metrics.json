@@ -1,0 +1,21 @@
+{
+  "velocity_rmse": 0.006653245721133087,
+  "hidden_velocity_rmse": 0.005864753006925334,
+  "hidden_velocity_rmse_over_scale": 0.003909835337950223,
+  "flow_relative_l2": 0.0033193315625263706,
+  "shear_relative_l2": 0.003149678506537912,
+  "hidden_flow_relative_l2": 0.004614414290751171,
+  "hidden_shear_relative_l2": 0.003489976286809534,
+  "accuracy_targets_met": true,
+  "training_seconds": 37.541269545,
+  "settings": {
+    "steps": 4000,
+    "seed": 42,
+    "no_show": false
+  },
+  "torch_version": "2.2.2",
+  "numpy_version": "1.26.4",
+  "data_description": "36 observations simul\u00e9es ; sigma=0.045 ; phases cach\u00e9es [0.30,0.65]",
+  "physics_description": "alpha=3 ; G=6+4*cos(2*pi*t) connu sur tout le cycle",
+  "weighted_residual_rmse": 0.04601949825882912
+}

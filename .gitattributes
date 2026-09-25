@@ -1,3 +1,6 @@
-# Generated standalone visualizations. Keep templates and scientific source code detectable.
-visualization/index.html linguist-generated=true
-visualization/reliability.html linguist-generated=true
+# Generated standalone visualizations: excluded from GitHub language statistics.
+visualization/index.html linguist-generated
+visualization/reliability.html linguist-generated
+
+# Third-party browser library.
+visualization/vendor/** linguist-vendored
